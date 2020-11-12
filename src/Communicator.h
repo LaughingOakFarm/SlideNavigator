@@ -10,8 +10,9 @@ class Communicator {
 private:
     Controller controller;
     char currentCommand;
-
-    void confirmReceived();
+    int commandPram;
+    char rx_byte;
+    bool readingCommand = false;
 
 public:
     Communicator();

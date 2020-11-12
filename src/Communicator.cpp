@@ -8,22 +8,37 @@ bool Communicator::hasNewCommand() {
         return false;
     }
 
-    // Check Manual Controller First
     if (controller.newButtonPress()) {
         currentCommand = controller.getNewCommand();
-        confirmReceived();
+        commandPram = 0;
+        readingCommand = false;
+
         return true;
-    } else if(Serial.available() > 0) {
+    }
+
+    if (Serial.available() > 0) {
+        rx_byte = Serial.read();
+
+        if ((rx_byte >= '0') && (rx_byte <= '9')) {
+            Serial.print("Number received: ");
+            Serial.println(rx_byte);
+        }
+        else if (rx_byte == '\n') {
+            Serial.println("Newline");
+        }
+        else {
+            Serial.println("Not a number.");
+            Serial.println(rx_byte);
+        }
+    }
+
+    // Check Manual Controller First
+    if(Serial.available() > 0) {
         currentCommand = Serial.read();
-        confirmReceived();
         return true;
     }
 
     return false;
-}
-
-void Communicator::confirmReceived() {
-    Serial.println(String("<") + currentCommand + String(" Received>"));
 }
 
 void Communicator::confirmComplete() {
