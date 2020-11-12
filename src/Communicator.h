@@ -9,15 +9,17 @@ class Communicator {
 
 private:
     Controller controller;
-    char currentCommand;
-    int commandPram;
-    char rx_byte;
-    bool readingCommand = false;
+    bool setNewCommand(char newCommand, int newPram);
+    String commands = "HNPCFK";
+    char currentCommand = 0;
+    int commandPram = 0;
 
 public:
     Communicator();
     bool hasNewCommand();
-    void confirmComplete();
+    int getCommandPram();
+    char getCommand();
+    void commandComplete();
 };
 
 

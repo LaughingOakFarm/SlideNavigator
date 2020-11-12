@@ -5,16 +5,16 @@
 
 class Controller {
     private:
-        int controllerPin = A0;
-        uint16_t buttonInput;
-        uint16_t lastButtonState;
-        int buttonState;
+        int const controllerPin = A0;
+        uint16_t buttonInput = 0;
+        uint16_t lastButtonState = 0;
+        int buttonState = 0;
         unsigned long lastDebounceTime = 0;
         unsigned long debounceDelay = 25;
 
     public:
         Controller();
-        bool Controller::newButtonPress();
+        bool newButtonPress();
         char getNewCommand() const;
 };
 

@@ -1,6 +1,8 @@
 #include "Controller.h"
 
-Controller::Controller() = default;
+Controller::Controller() {
+    pinMode(controllerPin, INPUT);
+};
 
 bool Controller::newButtonPress() {
     buttonInput = analogRead(controllerPin);
