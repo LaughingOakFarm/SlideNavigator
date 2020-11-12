@@ -25,16 +25,16 @@ bool Controller::newButtonPress() {
     return false;
 }
 
-String Controller::getNewCommand() const {
+char Controller::getNewCommand() const {
     switch (buttonInput) {
         case 50:
-            return "home";
+            return "H";
         case 53:
-            return "previous";
+            return "P";
         case 54:
-            return "capture";
+            return "C";
         case 55:
-            return "next";
+            return "N";
     }
 
     return "";

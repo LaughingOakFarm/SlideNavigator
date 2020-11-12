@@ -15,7 +15,7 @@ class Controller {
     public:
         Controller();
         bool Controller::newButtonPress();
-        String getNewCommand() const;
+        char getNewCommand() const;
 };
 
 

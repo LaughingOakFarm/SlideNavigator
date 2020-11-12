@@ -1,5 +1,6 @@
 #include <AccelStepper.h>
 #include "Controller.h"
+#include "Communicator.h"
 
 uint8_t controlPin = A0;
 uint8_t xEnablePin = 5;
@@ -13,12 +14,10 @@ AccelStepper xStepper = AccelStepper(1, 7, 6);
 AccelStepper yStepper = AccelStepper(1, 10, 9);
 AccelStepper zStepper = AccelStepper(1, 4, 3);
 
-Controller controller = Controller();
+Communicator communicator = Communicator();
 
 uint16_t maxSpeedStepper     = 2000;
 uint16_t accelerationStepper = 1000;
-
-int buttonInput;
 
 void setup() {
     zStepper.setMaxSpeed(maxSpeedStepper);
@@ -42,6 +41,10 @@ void setup() {
 }
 
 void loop() {
+    if(communicator.hasNewCommand()) {
+        communicator.confirmComplete();
+    }
+
 //    Serial.print("  X Switch: ");
 //    buttonInput = analogRead(xHomePin);
 //    buttonInput = map(buttonInput, 0, 1023, 0, 2);
@@ -56,11 +59,6 @@ void loop() {
 //    buttonInput = analogRead(zHomePin);
 //    buttonInput = map(buttonInput, 0, 1023, 0, 2);
 //    Serial.print(buttonInput);
-
-    if(controller.newButtonPress()) {
-        Serial.print("Control Input: ");
-        Serial.println(controller.getNewCommand());
-    }
 
 //    zStepper.moveTo(400);
 //    yStepper.moveTo(400);
