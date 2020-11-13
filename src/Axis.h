@@ -8,40 +8,37 @@ class Axis {
 
 private:
     AccelStepper stepper;
-    uint8_t dirPin;
-    uint8_t posPin;
-    uint8_t enPin;
+    char label;
     uint8_t swPin;
 
-    uint16_t readyPosition;
-    uint16_t maxPosition;
+    short readyPosition;
+    short maxPosition;
 
-    uint16_t const maxSpeedStepper     = 2000;
-    uint16_t const accelerationStepper = 1000;
-
-    uint16_t buttonInput = 0;
+    short buttonInput = 0;
     String state = ""; // homing, ready, moving, holding
     bool commandFirstRun = false;
     bool invert = false;
     short randomNum = 0;
+    short maxSpeed;
 
     bool switchPressed();
-    short check(short demandPos);
+    short check(short demandPos, bool allowNeg = false);
 
 public:
     Axis(
+        char label,
         uint8_t dirPin,
         uint8_t posPin,
         uint8_t enPin,
         uint8_t swPin,
         uint16_t readyPosition,
         uint16_t maxPosition,
-        bool invert
+        bool invert,
+        short maxSpeed
     );
     bool moveTo(uint16_t pos);
     bool moveRandom();
     bool home();
-    String getState();
     void firstRun();
 };
 

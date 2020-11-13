@@ -1,28 +1,29 @@
 #include "Axis.h"
 
 Axis::Axis(
+        char label,
         uint8_t dirPin,
         uint8_t posPin,
         uint8_t enPin,
         uint8_t swPin,
         uint16_t readyPosition,
         uint16_t maxPosition,
-        bool invert
+        bool invert,
+        short maxSpeed
     ) :
     stepper(1, posPin, dirPin) {
-    this->dirPin = dirPin;
-    this->posPin = posPin;
-    this->enPin = enPin;
+    this->label = label;
     this->swPin = swPin;
     this->readyPosition = readyPosition;
     this->maxPosition = maxPosition;
     this->invert = invert;
+    this->maxSpeed = maxSpeed;
 
     pinMode(enPin, OUTPUT);
     pinMode(swPin, INPUT_PULLUP);
 
-    stepper.setMaxSpeed(maxSpeedStepper);
-    stepper.setAcceleration(accelerationStepper);
+    stepper.setMaxSpeed(maxSpeed);
+    stepper.setAcceleration(maxSpeed/2);
 }
 
 bool Axis::home() {
@@ -30,8 +31,8 @@ bool Axis::home() {
         // Clear the state and re-home
         // Move at a constant speed towards the zero position
         state = "zeroing";
-        stepper.setMaxSpeed(500);
-        stepper.moveTo(check(-(maxPosition+200)));
+        stepper.setMaxSpeed(maxSpeed/8);
+        stepper.moveTo(check(-(maxPosition+200), true));
 
         commandFirstRun = false;
     } else if(state == "zeroing") {
@@ -40,8 +41,16 @@ bool Axis::home() {
         // If a limit switch is hit, zero the stepper position
         if(switchPressed()) {
             state = "readying";
+            Serial.println(
+                String("<Thought ")
+                + label
+                + String(" Position:")
+                + stepper.currentPosition()
+                + String(">")
+            );
+
             stepper.setCurrentPosition(0);
-            stepper.setMaxSpeed(maxSpeedStepper);
+            stepper.setMaxSpeed(maxSpeed);
             stepper.moveTo(check(readyPosition));
         }
     } else if(state == "readying") {
@@ -99,17 +108,17 @@ bool Axis::switchPressed() {
     return buttonInput == 1;
 }
 
-String Axis::getState() {
-    return state;
-}
-
 void Axis::firstRun() {
     commandFirstRun = true;
 }
 
-short Axis::check(short demandPos) {
+short Axis::check(short demandPos, bool allowNeg) {
     if(demandPos >= 0 && demandPos > maxPosition) {
         demandPos = maxPosition;
+    } else if(demandPos < 0) {
+        if(!allowNeg) {
+            demandPos = 0;
+        }
     }
 
     if(invert) {

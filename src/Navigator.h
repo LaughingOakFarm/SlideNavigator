@@ -38,8 +38,6 @@ public:
     bool next();
     bool previous();
     bool capture();
-    bool kill();
-    bool focus();
     bool test();
     bool move();
 };

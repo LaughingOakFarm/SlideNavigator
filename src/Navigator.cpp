@@ -2,9 +2,9 @@
 
 Navigator::Navigator() :
     communicator(),
-    xAxis(6,7,5, A1, 50, 2600, false),
-    yAxis(9,10,8, A2, 400, 425, false),
-    zAxis(3,4,2, A3, 100, 600, true) {}
+    xAxis('X', 6,7,5, A1, 50, 2000, false, 8000),
+    yAxis('Y', 9,10,8, A2, 10, 375, false, 2000),
+    zAxis('Z', 3,4,2, A3, 10, 550, true, 2000) {}
 
 void Navigator::loop() {
     if(activeCommand == 0) {
@@ -48,10 +48,6 @@ bool Navigator::runCommand() {
             return previous();
         case 'C':
             return capture();
-        case 'K':
-            return kill();
-        case 'F':
-            return focus();
         case 'T':
             return test();
         case 'X':
@@ -70,6 +66,7 @@ bool Navigator::home() {
 
     if(x && y && z) {
         hasHomed = true;
+        Serial.println("<Homed>");
         return true;
     }
 
@@ -85,14 +82,8 @@ bool Navigator::previous() {
 }
 
 bool Navigator::capture() {
-    return true;
-}
-
-bool Navigator::kill() {
-    return true;
-}
-
-bool Navigator::focus() {
+    // All this does is post <New Command:X> to the computer
+    // for it to read.
     return true;
 }
 
@@ -105,6 +96,7 @@ bool Navigator::test() {
         z = zAxis.moveRandom();
 
         if(x && y && z) {
+            Serial.println(String("<Test Position ")+testCount+String(">"));
             testCount++;
             firstRun = true;
             setFirstRun();
