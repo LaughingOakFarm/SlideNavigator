@@ -21,17 +21,27 @@ private:
     uint16_t viewNum = 0;
 
     bool firstRun = false;
+    uint8_t testCount = 0;
+    char activeCommand = 0;
+    char nextCommand = 0;
+    bool hasHomed = false;
+
+    void setFirstRun();
+    void checkHome();
 
 public:
     Navigator();
     void loop();
-    void runCommand();
-    void home();
-    void next();
-    void previous();
-    void capture();
-    void kill();
-    void focus();
+    bool runCommand();
+
+    bool home();
+    bool next();
+    bool previous();
+    bool capture();
+    bool kill();
+    bool focus();
+    bool test();
+    bool move();
 };
 
 

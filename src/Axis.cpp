@@ -31,12 +31,7 @@ bool Axis::home() {
         // Move at a constant speed towards the zero position
         state = "zeroing";
         stepper.setMaxSpeed(500);
-
-        short pos = maxPosition * -1;
-        if(invert) {
-            pos = maxPosition;
-        }
-        stepper.moveTo(pos);
+        stepper.moveTo(check(-(maxPosition+200)));
 
         commandFirstRun = false;
     } else if(state == "zeroing") {
@@ -46,19 +41,14 @@ bool Axis::home() {
         if(switchPressed()) {
             state = "readying";
             stepper.setCurrentPosition(0);
-
-            short pos = readyPosition;
-            if(invert) {
-                pos = readyPosition * -1;
-            }
             stepper.setMaxSpeed(maxSpeedStepper);
-            stepper.moveTo(pos);
+            stepper.moveTo(check(readyPosition));
         }
     } else if(state == "readying") {
         // Proceed to the designated ready position
         stepper.run();
 
-        if(!stepper.isRunning()) {
+        if(stepper.targetPosition() == stepper.currentPosition()) {
             state = "ready";
 //            Serial.println(state);
             return true;
@@ -69,15 +59,35 @@ bool Axis::home() {
 
     return false;
 }
-#pragma clang diagnostic pop
 
-void Axis::moveTo(uint16_t pos) {
-    state = "moving";
-    stepper.moveTo(pos);
+bool Axis::moveTo(uint16_t pos) {
+    if(state != "ready" && state != "moving" && state != "holding") {
+        Serial.println("<Needs to Home>");
+        return true;
+    }
 
-    // do moving stuff
+    if(commandFirstRun) {
+        state = "moving";
+        stepper.moveTo(check(pos));
+        commandFirstRun = false;
+    }
 
-    state = "holding";
+    stepper.run();
+
+    if(stepper.targetPosition() == stepper.currentPosition()) {
+        state = "holding";
+        return true;
+    }
+
+    return false;
+}
+
+bool Axis::moveRandom() {
+    if(commandFirstRun) {
+        randomNum = random(0, maxPosition);
+    }
+
+    return moveTo(randomNum);
 }
 
 bool Axis::switchPressed() {
@@ -95,5 +105,21 @@ String Axis::getState() {
 
 void Axis::firstRun() {
     commandFirstRun = true;
+}
+
+short Axis::check(short demandPos) {
+    if(demandPos >= 0 && demandPos > maxPosition) {
+        demandPos = maxPosition;
+    }
+
+    if(invert) {
+        if(demandPos > 0) {
+            demandPos = demandPos * -1;
+        } else {
+            demandPos = abs(demandPos);
+        }
+    }
+
+    return demandPos;
 }
 

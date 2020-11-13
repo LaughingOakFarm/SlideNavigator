@@ -23,8 +23,10 @@ private:
     String state = ""; // homing, ready, moving, holding
     bool commandFirstRun = false;
     bool invert = false;
+    short randomNum = 0;
 
     bool switchPressed();
+    short check(short demandPos);
 
 public:
     Axis(
@@ -36,7 +38,8 @@ public:
         uint16_t maxPosition,
         bool invert
     );
-    void moveTo(uint16_t pos);
+    bool moveTo(uint16_t pos);
+    bool moveRandom();
     bool home();
     String getState();
     void firstRun();
