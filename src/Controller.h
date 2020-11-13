@@ -6,7 +6,7 @@
 class Controller {
     private:
         int const controllerPin = A0;
-        uint16_t buttonInput = 0;
+        uint16_t filteredButton = 0;
         uint16_t lastButtonState = 0;
         int buttonState = 0;
         unsigned long lastDebounceTime = 0;

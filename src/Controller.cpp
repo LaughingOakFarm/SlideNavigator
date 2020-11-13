@@ -5,20 +5,35 @@ Controller::Controller() {
 };
 
 bool Controller::newButtonPress() {
-    buttonInput = analogRead(controllerPin);
-    buttonInput = map(buttonInput, 0, 1023, 0, 56);
+    uint16_t buttonInput = analogRead(controllerPin);
 
-    if (buttonInput != lastButtonState) {
+    if(buttonInput < 250) {
+        filteredButton = 0;
+    } else if(buttonInput >= 900 && buttonInput <= 950) {
+        filteredButton = 50;
+    } else if(buttonInput >= 980 && buttonInput <= 989) {
+        filteredButton = 53;
+    } else if(buttonInput >= 1001 && buttonInput <= 1008) {
+        filteredButton = 54;
+    } else if(buttonInput >= 1012) {
+        filteredButton = 55;
+    } else {
+        filteredButton = lastButtonState;
+    }
+
+    if (filteredButton != lastButtonState) {
+//        Serial.print("millis reset - ");
+//        Serial.println(filteredButton);
         lastDebounceTime = millis();
     }
 
-    lastButtonState = buttonInput;
+    lastButtonState = filteredButton;
 
     if ((millis() - lastDebounceTime) > debounceDelay) {
-        if (buttonInput != buttonState) {
-            buttonState = buttonInput;
+        if (filteredButton != buttonState) {
+            buttonState = filteredButton;
 
-            if(buttonInput != 0) {
+            if(filteredButton != 0) {
                 return true;
             }
         }
@@ -28,16 +43,16 @@ bool Controller::newButtonPress() {
 }
 
 char Controller::getNewCommand() const {
-    switch (buttonInput) {
+    switch (filteredButton) {
         case 50:
-            return "H";
+            return 'H';
         case 53:
-            return "P";
+            return 'P';
         case 54:
-            return "C";
+            return 'C';
         case 55:
-            return "N";
+            return 'N';
     }
 
-    return "";
+    return 0;
 }

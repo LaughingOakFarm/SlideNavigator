@@ -2,18 +2,18 @@
 
 Navigator::Navigator() :
     communicator(),
-    xAxis(7,6,5, A1, 500, 1000),
-    yAxis(10,9,8, A2, 500, 1000),
-    zAxis(4,3,2, A3, 500, 1000) {}
+    xAxis(6,7,5, A1, 50, 10000, false),
+    yAxis(9,10,8, A2, 400, 450, false),
+    zAxis(3,4,2, A3, 100, 10000, true) {}
 
 void Navigator::loop() {
     if(communicator.getCommand() == 0) {
-        communicator.hasNewCommand();
-        Serial.println("New Command:");
-        Serial.println(communicator.getCommand());
-        Serial.println(communicator.getCommandPram());
-
-        firstRun = true;
+        if(communicator.hasNewCommand()) {
+//            Serial.println("New Command:");
+//            Serial.println(communicator.getCommand());
+//            Serial.println(communicator.getCommandPram());
+            firstRun = true;
+        }
     }
 
     // run the current command, non-blocking
@@ -45,7 +45,11 @@ void Navigator::home() {
         zAxis.firstRun();
     }
 
-    if(xAxis.home() && yAxis.home() && zAxis.home()) {
+    bool x = xAxis.home();
+    bool y = yAxis.home();
+    bool z = zAxis.home();
+
+    if(x && y && z) {
         communicator.commandComplete();
     }
 }

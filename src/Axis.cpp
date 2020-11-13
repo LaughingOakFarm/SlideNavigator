@@ -6,15 +6,17 @@ Axis::Axis(
         uint8_t enPin,
         uint8_t swPin,
         uint16_t readyPosition,
-        uint16_t maxPosition
+        uint16_t maxPosition,
+        bool invert
     ) :
-    stepper(1, dirPin, posPin) {
+    stepper(1, posPin, dirPin) {
     this->dirPin = dirPin;
     this->posPin = posPin;
     this->enPin = enPin;
     this->swPin = swPin;
     this->readyPosition = readyPosition;
     this->maxPosition = maxPosition;
+    this->invert = invert;
 
     pinMode(enPin, OUTPUT);
     pinMode(swPin, INPUT_PULLUP);
@@ -28,30 +30,46 @@ bool Axis::home() {
         // Clear the state and re-home
         // Move at a constant speed towards the zero position
         state = "zeroing";
-        stepper.setMaxSpeed(200);
-        stepper.move(-10);
+        stepper.setMaxSpeed(500);
+
+        short pos = maxPosition * -1;
+        if(invert) {
+            pos = maxPosition;
+        }
+        stepper.moveTo(pos);
+
         commandFirstRun = false;
     } else if(state == "zeroing") {
-        stepper.runSpeedToPosition();
+        stepper.run();
 
         // If a limit switch is hit, zero the stepper position
         if(switchPressed()) {
             state = "readying";
             stepper.setCurrentPosition(0);
-            stepper.moveTo(readyPosition);
+
+            short pos = readyPosition;
+            if(invert) {
+                pos = readyPosition * -1;
+            }
+            stepper.setMaxSpeed(maxSpeedStepper);
+            stepper.moveTo(pos);
         }
-    } if(state == "readying") {
+    } else if(state == "readying") {
         // Proceed to the designated ready position
         stepper.run();
 
         if(!stepper.isRunning()) {
             state = "ready";
+//            Serial.println(state);
             return true;
         }
+    } else if(state == "ready") {
+        return true;
     }
 
     return false;
 }
+#pragma clang diagnostic pop
 
 void Axis::moveTo(uint16_t pos) {
     state = "moving";

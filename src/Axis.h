@@ -22,6 +22,7 @@ private:
     uint16_t buttonInput = 0;
     String state = ""; // homing, ready, moving, holding
     bool commandFirstRun = false;
+    bool invert = false;
 
     bool switchPressed();
 
@@ -32,7 +33,8 @@ public:
         uint8_t enPin,
         uint8_t swPin,
         uint16_t readyPosition,
-        uint16_t maxPosition
+        uint16_t maxPosition,
+        bool invert
     );
     void moveTo(uint16_t pos);
     bool home();

@@ -34,6 +34,7 @@ bool Communicator::setNewCommand(char newCommand, int newPram) {
         return false;
     }
 
+    Serial.println(String("<New Command:")+newCommand+String(">"));
     currentCommand = newCommand;
     commandPram = newPram;
 
