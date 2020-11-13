@@ -1,13 +1,41 @@
-//
-// Created by Tyler Jensen on 11/11/20.
-//
-
 #ifndef SLIDENAVIGATOR_AXIS_H
 #define SLIDENAVIGATOR_AXIS_H
 
+#include <AccelStepper.h>
+#include "Arduino.h"
 
 class Axis {
 
+private:
+    AccelStepper stepper;
+    uint8_t dirPin;
+    uint8_t posPin;
+    uint8_t enPin;
+    uint8_t swPin;
+
+    uint16_t readyPosition;
+    uint16_t maxPosition;
+
+    uint16_t const maxSpeedStepper     = 2000;
+    uint16_t const accelerationStepper = 1000;
+
+    uint16_t buttonInput = 0;
+    String state = ""; // homing, ready, moving, holding
+
+    bool readSwitch();
+
+public:
+    Axis(
+        uint8_t dirPin,
+        uint8_t posPin,
+        uint8_t enPin,
+        uint8_t swPin,
+        uint16_t readyPosition,
+        uint16_t maxPosition
+    );
+    void moveTo(uint16_t pos);
+    bool home();
+    String getState();
 };
 
 
