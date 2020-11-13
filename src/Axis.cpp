@@ -42,11 +42,13 @@ bool Axis::home() {
         if(switchPressed()) {
             state = "readying";
             Serial.println(
-                String("<Thought ")
+                String("<Incorrect ")
                 + label
-                + String(" Position:")
+                + String(" Position by: ")
                 + stepper.currentPosition()
-                + String(">")
+                + String(" steps or ")
+                + (stepper.currentPosition()*0.45)
+                + String(" degrees>")
             );
 
             stepper.setCurrentPosition(0);
