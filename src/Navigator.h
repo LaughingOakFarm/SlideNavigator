@@ -20,6 +20,8 @@ private:
     uint8_t viewY = 0;
     uint16_t viewNum = 0;
 
+    bool firstRun = false;
+
 public:
     Navigator();
     void loop();

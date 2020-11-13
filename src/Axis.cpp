@@ -24,11 +24,32 @@ Axis::Axis(
 }
 
 bool Axis::home() {
-    state = "homing";
+    if(commandFirstRun) {
+        // Clear the state and re-home
+        // Move at a constant speed towards the zero position
+        state = "zeroing";
+        stepper.setMaxSpeed(200);
+        stepper.move(-10);
+    } else if(state == "zeroing") {
+        stepper.runSpeedToPosition();
 
-    // do homing sequence
+        // If a limit switch is hit, zero the stepper position
+        if(switchPressed()) {
+            state = "readying";
+            stepper.setCurrentPosition(0);
+            stepper.moveTo(readyPosition);
+        }
+    } if(state == "readying") {
+        // Proceed to the designated ready position
+        stepper.run();
 
-    state = "ready";
+        if(!stepper.isRunning()) {
+            state = "ready";
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void Axis::moveTo(uint16_t pos) {
@@ -40,7 +61,7 @@ void Axis::moveTo(uint16_t pos) {
     state = "holding";
 }
 
-bool Axis::readSwitch() {
+bool Axis::switchPressed() {
 //    Serial.print("  X Switch: ");
     buttonInput = analogRead(swPin);
     buttonInput = map(buttonInput, 0, 1023, 0, 2);
@@ -51,5 +72,9 @@ bool Axis::readSwitch() {
 
 String Axis::getState() {
     return state;
+}
+
+void Axis::firstRun() {
+    commandFirstRun = true;
 }
 

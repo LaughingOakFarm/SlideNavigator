@@ -21,8 +21,9 @@ private:
 
     uint16_t buttonInput = 0;
     String state = ""; // homing, ready, moving, holding
+    bool commandFirstRun = false;
 
-    bool readSwitch();
+    bool switchPressed();
 
 public:
     Axis(
@@ -36,6 +37,7 @@ public:
     void moveTo(uint16_t pos);
     bool home();
     String getState();
+    void firstRun();
 };
 
 
