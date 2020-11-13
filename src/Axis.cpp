@@ -30,6 +30,7 @@ bool Axis::home() {
         state = "zeroing";
         stepper.setMaxSpeed(200);
         stepper.move(-10);
+        commandFirstRun = false;
     } else if(state == "zeroing") {
         stepper.runSpeedToPosition();
 

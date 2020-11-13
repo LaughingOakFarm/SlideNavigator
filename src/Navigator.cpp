@@ -18,6 +18,7 @@ void Navigator::loop() {
 
     // run the current command, non-blocking
     runCommand();
+    firstRun = false;
 }
 
 void Navigator::runCommand() {
