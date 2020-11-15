@@ -37,6 +37,7 @@ public:
         short maxSpeed
     );
     bool moveTo(uint16_t pos);
+    bool run();
     bool moveRandom();
     bool home();
     void firstRun();

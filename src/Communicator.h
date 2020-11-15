@@ -10,7 +10,7 @@ class Communicator {
 private:
     Controller controller;
     bool setNewCommand(char newCommand, int newPram);
-    String commands = "HNPCTXYZ";
+    String commands = "HNPCTXYZA";
     char currentCommand = 0;
     int commandPram = 0;
 

@@ -14,11 +14,19 @@ private:
     Axis yAxis;
     Axis zAxis;
 
-    uint16_t sideWidth = 10000;
-    uint16_t sideHeight = 10000;
-    uint8_t viewX = 0;
-    uint8_t viewY = 0;
-    uint16_t viewNum = 0;
+    uint8_t zoomLevel = 100;
+    uint16_t xSlideMin = 600;
+    uint16_t xSlideMax = 1800;
+    uint16_t ySlideMin = 40;
+    uint16_t ySlideMax = 1600;
+    uint16_t viewWidth = 17;
+    uint16_t viewHeight = 13;
+    uint16_t currentViewX = 0;
+    uint16_t currentViewY = 0;
+    uint16_t totalXViews;
+    uint16_t totalYViews;
+    String navState = "";
+    bool navReady = false;
 
     bool firstRun = false;
     uint8_t testCount = 0;
@@ -28,6 +36,10 @@ private:
 
     void setFirstRun();
     void checkHome();
+    bool homeNav();
+    void moveAxis();
+    void checkFirstMove();
+    bool continueMoving();
 
 public:
     Navigator();
@@ -40,6 +52,7 @@ public:
     bool capture();
     bool test();
     bool move();
+    bool adjustZoom();
 };
 
 

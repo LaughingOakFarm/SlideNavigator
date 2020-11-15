@@ -31,8 +31,8 @@ bool Axis::home() {
         // Clear the state and re-home
         // Move at a constant speed towards the zero position
         state = "zeroing";
-        stepper.setMaxSpeed(maxSpeed/8);
-        stepper.moveTo(check(-(maxPosition+200), true));
+        stepper.setMaxSpeed(maxSpeed/2);
+        stepper.moveTo(check(-(maxPosition+200), true)); // 200
 
         commandFirstRun = false;
     } else if(state == "zeroing") {
@@ -57,9 +57,9 @@ bool Axis::home() {
         }
     } else if(state == "readying") {
         // Proceed to the designated ready position
-        stepper.run();
+        bool stillGoing = stepper.run();
 
-        if(stepper.targetPosition() == stepper.currentPosition()) {
+        if(!stillGoing) {
             state = "ready";
 //            Serial.println(state);
             return true;
@@ -79,13 +79,19 @@ bool Axis::moveTo(uint16_t pos) {
 
     if(commandFirstRun) {
         state = "moving";
-        stepper.moveTo(check(pos));
+        short newPos = check(pos);
+        Serial.println(newPos);
+        stepper.moveTo(newPos);
         commandFirstRun = false;
     }
 
-    stepper.run();
+    return run();
+}
 
-    if(stepper.targetPosition() == stepper.currentPosition()) {
+bool Axis::run() {
+    bool stillGoing = stepper.run();
+
+    if(!stillGoing) {
         state = "holding";
         return true;
     }
