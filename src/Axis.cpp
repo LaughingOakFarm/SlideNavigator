@@ -80,7 +80,6 @@ bool Axis::moveTo(uint16_t pos) {
     if(commandFirstRun) {
         state = "moving";
         short newPos = check(pos);
-        Serial.println(newPos);
         stepper.moveTo(newPos);
         commandFirstRun = false;
     }

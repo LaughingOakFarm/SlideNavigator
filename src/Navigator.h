@@ -18,7 +18,7 @@ private:
     uint16_t xSlideMin = 600;
     uint16_t xSlideMax = 1800;
     uint16_t ySlideMin = 40;
-    uint16_t ySlideMax = 1600;
+    uint16_t ySlideMax = 850;
     uint16_t viewWidth = 17;
     uint16_t viewHeight = 13;
     uint16_t currentViewX = 0;
@@ -47,12 +47,13 @@ public:
     bool runCommand();
 
     bool home();
+    bool initializePoint();
     bool next();
     bool previous();
     bool capture();
     bool test();
     bool move();
-    bool adjustZoom();
+    bool adjustZoom(int newZoomLevel = 40);
 };
 
 

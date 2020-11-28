@@ -4,8 +4,11 @@
 Navigator::Navigator() :
     communicator(),
     xAxis('X', 6,7,5, A1, 50, 2000, false, 8000),
-    yAxis('Y', 9,10,8, A2, 40, 1600, false, 8000),
-    zAxis('Z', 3,4,2, A3, 585, 850, true, 2000) {}
+    yAxis('Y', 9,10,8, A2, 40, 850, false, 6000),
+    zAxis('Z', 3,4,2, A3, 585, 850, true, 2000) {
+
+    adjustZoom(40);
+}
 
 void Navigator::loop() {
     if(activeCommand == 0) {
@@ -43,6 +46,8 @@ bool Navigator::runCommand() {
     switch (activeCommand) {
         case 'H':
             return home();
+        case 'I':
+            return initializePoint();
         case 'N':
             return next();
         case 'P':
@@ -52,7 +57,7 @@ bool Navigator::runCommand() {
         case 'T':
             return test();
         case 'A':
-            return adjustZoom();
+            return adjustZoom(communicator.getCommandPram());
         case 'X':
         case 'Y':
         case 'Z':
@@ -63,17 +68,97 @@ bool Navigator::runCommand() {
 }
 
 bool Navigator::home() {
-    bool x = xAxis.home();
-    bool y = yAxis.home();
-    bool z = zAxis.home();
+    if(communicator.getCommandPram() == 0) {
+        bool x = xAxis.home();
+        bool y = yAxis.home();
+        bool z = zAxis.home();
 
-    if(x && y && z) {
-        hasHomed = true;
-        Serial.println("<Homed>");
-        navReady = false;
+        if(x && y && z) {
+            hasHomed = true;
+            Serial.println("<Homed>");
+            navReady = false;
+            return true;
+        }
+
+        return false;
+    } else {
+        bool axis;
+
+        if(communicator.getCommandPram() == 1) {
+            axis = xAxis.home();
+        } else if(communicator.getCommandPram() == 2) {
+            axis = yAxis.home();
+        } else if(communicator.getCommandPram() == 3) {
+            axis = zAxis.home();
+        } else {
+            Serial.println("<Bad Home Pram>");
+            return true;
+        }
+
+        if(axis) {
+            hasHomed = true;
+            Serial.println("<Homed>");
+            navReady = false;
+            return true;
+        }
+
+        return false;
+    }
+}
+
+bool Navigator::initializePoint() {
+    if(communicator.getCommandPram() == 0) {
+        Serial.println("<No InitPoint Selected>");
         return true;
     }
 
+    if(navState == "moving") {
+        return continueMoving();
+    }
+
+    uint8_t xMargin = 5;
+    uint8_t yMargin = 3;
+
+    switch (communicator.getCommandPram()) {
+        case 1:
+            currentViewX = xMargin;
+            currentViewY = yMargin;
+            break;
+        case 2:
+            currentViewX = floor(totalXViews / 2);
+            currentViewY = yMargin;
+            break;
+        case 3:
+            currentViewX = totalXViews - xMargin;
+            currentViewY = yMargin;
+            break;
+        case 4:
+            currentViewX = xMargin;
+            currentViewY = floor(totalYViews / 2);
+            break;
+        case 5:
+            currentViewX = floor(totalXViews / 2);
+            currentViewY = floor(totalYViews / 2);
+            break;
+        case 6:
+            currentViewX = totalXViews - xMargin;
+            currentViewY = floor(totalYViews / 2);
+            break;
+        case 7:
+            currentViewX = xMargin;
+            currentViewY = totalYViews - yMargin;
+            break;
+        case 8:
+            currentViewX = floor(totalXViews / 2);
+            currentViewY = totalYViews - yMargin;
+            break;
+        case 9:
+            currentViewX = totalXViews - xMargin;
+            currentViewY = totalYViews - yMargin;
+            break;
+    }
+
+    moveAxis();
     return false;
 }
 
@@ -91,12 +176,14 @@ bool Navigator::next() {
         currentViewX++;
         moveAxis();
     } else if(currentViewY == totalYViews && currentViewX == totalXViews) {
+        // is the end of the slide
         // if x is max and y is max, then home, clear status
         if(homeNav()) {
             currentViewX = 0;
             currentViewY = 0;
             navState = "";
             navReady = false;
+            Serial.println("<Navigate Complete>");
         }
     } else if(currentViewX == totalXViews) {
         // if it is on the last slide on the X, home x & y, y++, x = 1
@@ -210,8 +297,7 @@ void Navigator::checkHome() {
     }
 }
 
-bool Navigator::homeNav() {
-    bool x = xAxis.home();
+bool Navigator::homeNav() {    bool x = xAxis.home();
     bool y = yAxis.home();
 
     return x && y;
@@ -237,6 +323,8 @@ void Navigator::checkFirstMove() {
         navReady = true;
         currentViewX = 0;
         currentViewY = 0;
+
+        Serial.println(String("<Max: ")+totalXViews+String(",")+totalYViews+String(">"));
     }
 }
 
@@ -252,24 +340,20 @@ bool Navigator::continueMoving() {
     return false;
 }
 
-bool Navigator::adjustZoom() {
-    if(communicator.getCommandPram() == 100) {
+bool Navigator::adjustZoom(int newZoomLevel) {
+    if(newZoomLevel == 100) {
         if(zoomLevel == 40) {
             zoomLevel = 100;
             viewWidth = 17;
             viewHeight = 13;
-            Serial.println(viewWidth);
-            Serial.println(viewHeight);
         } else {
             Serial.println("<All ready at zoom 100x>");
         }
-    } else if(communicator.getCommandPram() == 40 && zoomLevel == 100) {
+    } else if(newZoomLevel == 40 && zoomLevel == 100) {
         if(zoomLevel == 100) {
             zoomLevel = 40;
             viewWidth = 44;
             viewHeight = 32;
-            Serial.println(viewWidth);
-            Serial.println(viewHeight);
         } else {
             Serial.println("<All ready at zoom 40x>");
         }

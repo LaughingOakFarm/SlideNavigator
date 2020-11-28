@@ -10,8 +10,14 @@ bool Communicator::hasNewCommand() {
     }
 
     if (controller.newButtonPress()) {
-        if(setNewCommand(controller.getNewCommand(), 1)) {
-            return true;
+        if(controller.getNewCommand() == 'H') {
+            if (setNewCommand('H', 0)) {
+                return true;
+            }
+        } else {
+            if(setNewCommand(controller.getNewCommand(), 1)) {
+                return true;
+            }
         }
     }
 
